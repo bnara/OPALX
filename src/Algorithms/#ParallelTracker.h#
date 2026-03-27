@@ -2,7 +2,7 @@
 // Class ParallelTracker
 //   OPAL-T tracker.
 //   The visitor class for tracking particles with time as independent
-//   variable.
+ //   variable.
 //
 // Copyright (c) 200x - 2014, Christof Kraus, Paul Scherrer Institut, Villigen PSI, Switzerland
 //               2015 - 2016, Christof Metzger-Kraus, Helmholtz-Zentrum Berlin, Germany
@@ -20,6 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
+
 #ifndef OPAL_ParallelTracker_HH
 #define OPAL_ParallelTracker_HH
 
@@ -37,10 +38,10 @@
 #include "Algorithms/IndexMap.h"
 #include "Algorithms/OrbitThreader.h"
 
-#include "AbsBeamline/BeamBeam.h"
 #include "AbsBeamline/ConstantEFieldCavity.h"
 #include "AbsBeamline/Drift.h"
 #include "AbsBeamline/ElementBase.h"
+#include "AbsBeamline/BeamBeam.h"
 #include "AbsBeamline/Marker.h"
 #include "AbsBeamline/Multipole.h"
 #include "AbsBeamline/MultipoleT.h"
@@ -231,11 +232,11 @@ public:
      * Vector of different timesteps for individual tracks
      */
     explicit ParallelTracker(
-            const Beamline& bl, PartBunch_t* bunch, const std::shared_ptr<DataSink>& ds,
-            const PartData& data, bool revBeam, bool revTrack,
-            const std::vector<unsigned long long>& maxSTEPS, double zstart,
-            const std::vector<double>& zstop, const std::vector<double>& dt,
-            const std::vector<std::shared_ptr<SamplingBase>>& emittingSamplers = {});
+        const Beamline& bl, PartBunch_t* bunch, const std::shared_ptr<DataSink>& ds,
+        const PartData& data, bool revBeam, bool revTrack,
+        const std::vector<unsigned long long>& maxSTEPS, double zstart,
+        const std::vector<double>& zstop, const std::vector<double>& dt,
+        const std::vector<std::shared_ptr<SamplingBase>>& emittingSamplers = {});
 
     // Destructor
     virtual ~ParallelTracker();
@@ -345,20 +346,27 @@ private:
      *         bunch extent, otherwise `std::nullopt`.
      */
     std::optional<BeamBeamGeometry> detectBeamBeamWindow(
-            OrbitThreader& oth, const ippl::Vector<double, Dim>& rmin,
-            const ippl::Vector<double, Dim>& rmax);
+        OrbitThreader& oth,
+        const ippl::Vector<double, Dim>& rmin,
+        const ippl::Vector<double, Dim>& rmax);
 
     void enterBeamBeamWindow(const BeamBeamGeometry& geometry, Inform& m);
     void leaveBeamBeamWindow(Inform& m);
     void renderBeamBeamWindowFrame(
-            double bunchTailS, double bunchHeadS, const BeamBeamGeometry& geometry);
+        double bunchTailS,
+        double bunchHeadS,
+        const BeamBeamGeometry& geometry);
     bool usesFrozenBeamBeamWindowMesh() const;
     void transformFieldsToReferenceFrame(
-            const CoordinateSystemTrafo& beamToReferenceCSTrafo, Inform& m);
-    void computeDefaultSelfFields(const CoordinateSystemTrafo& beamToReferenceCSTrafo, Inform& m);
+        const CoordinateSystemTrafo& beamToReferenceCSTrafo,
+        Inform& m);
+    void computeDefaultSelfFields(
+        const CoordinateSystemTrafo& beamToReferenceCSTrafo,
+        Inform& m);
     void computeBeamBeamWindowSelfFields(
-            const CoordinateSystemTrafo&, const CoordinateSystemTrafo& beamToReferenceCSTrafo,
-            Inform& m);
+        const CoordinateSystemTrafo&,
+        const CoordinateSystemTrafo& beamToReferenceCSTrafo,
+        Inform& m);
 
     // Reference Particle
     void updateReferenceParticle(const BorisPusher& pusher);
