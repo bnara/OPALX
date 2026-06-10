@@ -35,7 +35,6 @@ REAL pair_bunch_charge = n_pairs_per_species * elementary_charge;
 
 // time when e- and e+ are injected into the IP region
 REAL tinj = 100e-12;
-REAL primary_retire_time = 121e-12;
 
 // Interaction point and short tracking line.
 REAL ip_s = 0.0;
@@ -43,11 +42,17 @@ REAL drift_length = 0.01;
 REAL bb_length = 0.05;
 REAL bb_ip_s = drift_length + 0.5*bb_length;
 
+
+// Timestep and e-/e+ emission time
+REAL dT     = 1e-12;   
+REAL tEmit  = 8e-12;
+
+
 // Fieldsolver configuration
 REAL N = 16;
 
 DR_UP: DRIFT,  L = drift_length, ELEMEDGE = 0.0;
-IP1: BEAMBEAM, L = bb_length,    ELEMEDGE = drift_length, VISUALIZE = FALSE, COPY = TRUE, WITNESS_CONTAINERS = "1,2", RETIRE_TIME = primary_retire_time, APERTURE="RECTANGLE(0.02, 0.02, 0.05)";
+IP1: BEAMBEAM, L = bb_length,    ELEMEDGE = drift_length, VISUALIZE = FALSE, COPY = TRUE, WITNESS_CONTAINERS = "1,2", APERTURE="RECTANGLE(0.02, 0.02, 0.05)";
 DR_DN: DRIFT,  L = drift_length, ELEMEDGE = drift_length + bb_length;
 
 pairLine: LINE = (DR_UP, IP1, DR_DN);
@@ -62,12 +67,16 @@ DistPrimaryElectrons: DISTRIBUTION, TYPE = GAUSS,
     SIGMAPX = primary_sigma_pxy, SIGMAPY = primary_sigma_pxy, SIGMAPZ = 1.0e-12,
     NPARTDIST = primary_macroparticles;
 
-DistElectrons: DISTRIBUTION, TYPE = FROMFILE,
-    FNAME = "gamma_gamma_electrons.fromfile",
+DistElectrons: DISTRIBUTION, TYPE = EMITTEDFROMFILE,
+    FNAME = "gamma_gamma_electrons-t.fromfile",
+    EMITTED = true,
+    EMISSIONSTEPS = 8,
     NPARTDIST = n_pairs_per_species;
 
-DistPositrons: DISTRIBUTION, TYPE = FROMFILE,
-    FNAME = "gamma_gamma_positrons.fromfile",
+DistPositrons: DISTRIBUTION, TYPE = EMITTEDFROMFILE,
+    FNAME = "gamma_gamma_positrons-t.fromfile",
+    EMITTED = true,
+    EMISSIONSTEPS = 8,
     NPARTDIST = n_pairs_per_species;
 
 SourcePrimaryElectrons: EMISSIONSOURCE, DISTRIBUTION = DistPrimaryElectrons;
@@ -101,7 +110,7 @@ TRACK, LINE = pairLine,
     BEAMS = {PrimaryElectrons, GammaGammaElectrons, GammaGammaPositrons},
     MAXSTEPS = 130,
     ZSTOP = 2*drift_length + bb_length,
-    DT = 1.0e-12;
+    DT = dT;
  RUN, METHOD = "PARALLEL", FIELDSOLVER = FS1;
 ENDTRACK;
 
